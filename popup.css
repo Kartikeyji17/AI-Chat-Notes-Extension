@@ -1,40 +1,103 @@
+* { box-sizing: border-box; }
 body {
   margin: 0;
+  width: 300px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  width: 290px;
+  background: #fff;
 }
-.wrap { padding: 16px; }
-h1 { font-size: 14px; margin: 0 0 12px; color: #222; font-weight: 700; }
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #d97757, #c8623f);
+  color: #fff;
+}
+.logo {
+  font-size: 22px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header h1 { font-size: 14px; margin: 0; font-weight: 700; }
+.header .sub { font-size: 10.5px; margin: 2px 0 0; opacity: 0.85; }
+
+.wrap { padding: 16px 18px 18px; }
+
 button {
-  width: 100%;
-  padding: 10px;
-  border-radius: 9px;
   border: none;
-  font-size: 13px;
   cursor: pointer;
-  margin-bottom: 8px;
+  font-family: inherit;
+}
+
+#generateBtn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: #1e1e1e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  transition: transform 0.1s ease, background 0.15s ease;
 }
-#generateBtn { background: #d97757; color: white; font-weight: 600; }
-#generateBtn:disabled { opacity: 0.75; cursor: default; }
-.secondary { background: #eee; color: #222; }
-.link { background: none; color: #666; text-decoration: underline; padding: 4px; margin-bottom: 0; }
-#status {
+#generateBtn:hover { background: #333; }
+#generateBtn:active { transform: scale(0.98); }
+#generateBtn:disabled { opacity: 0.7; cursor: default; transform: none; }
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.secondary {
+  flex: 1;
+  padding: 9px;
+  border-radius: 9px;
+  background: #f4f3f0;
+  color: #333;
   font-size: 12px;
-  color: #555;
-  min-height: 16px;
-  margin-bottom: 8px;
-  white-space: pre-wrap;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+.secondary:hover { background: #ebe9e4; }
+
+#status {
+  font-size: 11.5px;
+  color: #666;
+  min-height: 14px;
+  margin: 8px 0 0;
   text-align: center;
 }
+
+.tip {
+  font-size: 10px;
+  color: #aaa;
+  line-height: 1.5;
+  margin: 14px 0 0;
+  text-align: center;
+}
+kbd {
+  background: #f0efec;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 9px;
+}
+
 .spinner {
   display: none;
   width: 13px;
   height: 13px;
-  border: 2px solid rgba(255,255,255,0.5);
+  border: 2px solid rgba(255,255,255,0.4);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;

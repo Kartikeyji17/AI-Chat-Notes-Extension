@@ -1,6 +1,15 @@
-// Extracts the visible conversation from ChatGPT / Claude / Gemini pages.
-
 function extractConversation() {
+  const selectionText = window.getSelection().toString().trim();
+  if (selectionText.length > 20) {
+    return {
+      site: location.hostname,
+      url: location.href,
+      title: document.title,
+      messages: [{ role: "selection", text: selectionText }],
+      isSelection: true,
+    };
+  }
+
   const host = location.hostname;
   const messages = [];
 
@@ -26,13 +35,12 @@ function extractConversation() {
     });
   }
 
-  // Fallback: nothing matched known selectors, grab whatever's on screen.
   if (messages.length === 0) {
     const text = document.body.innerText.trim();
     if (text) messages.push({ role: "page", text: text.slice(0, 20000) });
   }
 
-  return { site: host, url: location.href, title: document.title, messages };
+  return { site: host, url: location.href, title: document.title, messages, isSelection: false };
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {

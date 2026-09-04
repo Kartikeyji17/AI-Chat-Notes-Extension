@@ -6,11 +6,30 @@
 </head>
 <body>
   <div class="topbar">
-    <h1>My AI Chat Notes</h1>
-    <input id="search" type="text" placeholder="Search notes..." />
+    <div class="brand">
+      <div class="logo">🧠</div>
+      <h1>My AI Chat Notes</h1>
+    </div>
+    <div class="controls">
+      <input id="search" type="text" placeholder="🔍 Search notes..." />
+      <select id="sort">
+        <option value="due">Due first</option>
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="site">By site</option>
+      </select>
+      <button id="exportAllBtn" title="Backup all notes as JSON">⬇ Backup</button>
+      <label class="importLabel" title="Restore from JSON backup">
+        ⬆ Import
+        <input id="importFile" type="file" accept="application/json" hidden />
+      </label>
+    </div>
   </div>
+  <div id="dueBanner"></div>
+  <div id="tagBar"></div>
   <div id="list"></div>
   <script src="markdown.js"></script>
+  <script src="ai.js"></script>
   <script src="notes.js"></script>
 </body>
 </html>

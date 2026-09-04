@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "AI Chat Notes",
-  "version": "1.0.0",
-  "description": "Click the icon on ChatGPT/Claude/Gemini to turn the current chat into revision notes (summary + counter-arguments), stored locally.",
-  "permissions": ["storage", "activeTab", "scripting"],
-    "host_permissions": [
+  "version": "1.2.0",
+  "description": "Turn any ChatGPT/Claude/Gemini chat into revision notes with counter-arguments, stored locally with spaced revision.",
+  "permissions": ["storage", "activeTab", "scripting", "unlimitedStorage"],
+  "host_permissions": [
     "https://api.anthropic.com/*",
     "https://api.openai.com/*",
     "https://generativelanguage.googleapis.com/*",
@@ -18,6 +18,15 @@
     "default_title": "Generate notes from this chat"
   },
   "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "generate-notes": {
+      "suggested_key": { "default": "Ctrl+Shift+U", "mac": "Command+Shift+U" },
+      "description": "Generate notes from current chat (no popup needed)"
+    }
+  },
   "content_scripts": [
     {
       "matches": [
