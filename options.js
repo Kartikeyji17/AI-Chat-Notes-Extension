@@ -6,8 +6,6 @@ const backendUrlEl = document.getElementById("backendUrl");
 const savedEl = document.getElementById("saved");
 
 const DEFAULT_MODELS = {
-  anthropic: "claude-haiku-4-5-20251001",
-  openai: "gpt-4o-mini",
   gemini: "gemini-3.6-flash",
 };
 
@@ -28,7 +26,7 @@ modelEl.addEventListener("input", updateHint);
   const { apiKey, model, provider, backendUrl } = await chrome.storage.local.get([
     "apiKey", "model", "provider", "backendUrl",
   ]);
-  providerEl.value = provider || "anthropic";
+  providerEl.value = "gemini";
   if (apiKey) apiKeyEl.value = apiKey;
   if (backendUrl) backendUrlEl.value = backendUrl;
   modelEl.value = model || DEFAULT_MODELS[providerEl.value];

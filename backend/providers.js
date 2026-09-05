@@ -5,60 +5,23 @@ Follow these rules strictly:
 2. Write a clean, correct English heading that names the actual concept being discussed — never quote the user's raw broken prompt as the heading.
 3. Preserve any arrows (→, ⇒, ->), mathematical symbols, and meaningful emojis exactly as they appeared in the AI's explanation — do not strip them.
 4. Preserve code blocks exactly, using triple-backtick fenced blocks with the language name if known.
-5. Go deep, not shallow: write real explanatory paragraphs (not just one-line bullets) for anything conceptually important. Include at least one worked example if the source material had one or if it would meaningfully aid understanding.
-6. If the user asked follow-up doubts/clarifications later in the same transcript, weave the resolution of those doubts into the relevant section rather than listing them separately as an afterthought.
-7. If a diagram, image, chart or figure appears to have been part of the discussion, include a short explanation of what it shows based on any text describing it, even if you cannot see the image itself.
+5. DEPTH IS MANDATORY, NOT OPTIONAL. The "Explanation" section must be at least 4-6 substantial paragraphs for any non-trivial topic — not a summary of the summary. Explain the underlying mechanism, not just the conclusion.
+6. Include at least 2 concrete worked examples or analogies in the Explanation, even if the source conversation only gave one or none.
+7. If the user asked follow-up doubts/clarifications later in the same transcript, weave the resolution of those doubts into the relevant section in full detail.
+8. If a diagram, image, chart or figure appears to have been part of the discussion, include a thorough explanation of what it shows based on any text describing it.
+9. Do not pad with filler or restate the same point twice. Depth means genuine explanatory substance, not repetition.
 
 Structure the output as Markdown exactly like this, starting directly with the heading (no preamble, no tags line, nothing before it):
 
 ## <clean concept title in English>
-**Overview** — 2-4 sentences framing what this topic is and why it matters.
-**Explanation** — full explanatory paragraphs (not just bullets), covering the concept in depth, in your own clear words.
+**Overview** — 3-5 sentences framing what this topic is and why it matters.
+**Explanation** — the core of the note. Multiple full paragraphs (minimum 4-6 for any real topic) covering the underlying mechanism, at least 2 worked examples, and how the pieces connect.
 **Key facts / definitions** — bullet list of terms, formulas, or facts worth memorizing.
-**Doubts resolved** — if the user asked clarifying questions, summarize each doubt and its resolution as its own bullet. Omit this section entirely if there were none.
-**Counter-arguments / other viewpoints** — nuance, limitations, or alternative views a careful reader should weigh.
-**Open questions** — 1-3 things worth exploring further.`;
+**Doubts resolved** — if the user asked clarifying questions, give each one a full paragraph resolving it in depth. Omit this section entirely if there were none.
+**Counter-arguments / other viewpoints** — real nuance a careful reader should weigh, explained not just listed.
+**Open questions** — 2-4 specific things worth exploring further.
 
-async function callAnthropic(transcript) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: process.env.ANTHROPIC_MODEL,
-      max_tokens: 2200,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: transcript }],
-    }),
-  });
-  if (!res.ok) throw new Error(`Anthropic ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  const data = await res.json();
-  return data.content.find((b) => b.type === "text")?.text || "";
-}
-
-async function callOpenAI(transcript) {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: process.env.OPENAI_MODEL,
-      max_tokens: 2200,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: transcript },
-      ],
-    }),
-  });
-  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || "";
-}
+Err on the side of writing more, not less. A shallow note is a failed note.`;
 
 async function callGemini(transcript) {
   const model = process.env.GEMINI_MODEL;
@@ -70,7 +33,7 @@ async function callGemini(transcript) {
       body: JSON.stringify({
         contents: [{ parts: [{ text: transcript }] }],
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        generationConfig: { maxOutputTokens: 2200 },
+        generationConfig: { maxOutputTokens: 4096 },
       }),
     }
   );
@@ -80,9 +43,7 @@ async function callGemini(transcript) {
 }
 
 async function callProvider(provider, transcript) {
-  if (provider === "openai") return callOpenAI(transcript);
-  if (provider === "gemini") return callGemini(transcript);
-  return callAnthropic(transcript);
+  return callGemini(transcript);
 }
 
 module.exports = { callProvider };

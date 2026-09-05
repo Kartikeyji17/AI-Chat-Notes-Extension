@@ -30,7 +30,7 @@ function hashTranscript(provider, transcript) {
 
 app.post("/api/generate-notes", async (req, res) => {
   try {
-    const { provider = "anthropic", transcript } = req.body || {};
+    const { provider = "gemini", transcript } = req.body || {};
     if (!transcript || typeof transcript !== "string") {
       return res.status(400).json({ error: "transcript is required" });
     }

@@ -266,10 +266,10 @@ listEl.addEventListener("click", async (e) => {
     e.target.disabled = true;
     e.target.textContent = "...";
     try {
-      const { apiKey, backendUrl } = await chrome.storage.local.get(["apiKey", "backendUrl"]);
-      const provider = note.provider || "anthropic";
-      const model = note.model;
-      const content = await callAI(provider, apiKey, model, note.transcript, backendUrl);
+    const { apiKey, backendUrl } = await chrome.storage.local.get(["apiKey", "backendUrl"]);
+    const provider = note.provider || "gemini";
+    const model = note.model;
+    const content = await callAI(provider, apiKey, model, note.transcript, backendUrl);
       const tags = extractLocalTags(note.transcript + " " + content);
       await putNote({ ...note, content, tags });
       loadNotes();

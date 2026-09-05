@@ -5,27 +5,15 @@
   "description": "Turn any ChatGPT/Claude/Gemini chat into deep revision notes with counter-arguments, stored locally with spaced repetition.",
   "permissions": ["storage", "activeTab", "scripting", "unlimitedStorage"],
   "host_permissions": [
-    "https://api.anthropic.com/*",
-    "https://api.openai.com/*",
     "https://generativelanguage.googleapis.com/*",
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
     "https://claude.ai/*",
     "https://gemini.google.com/*"
   ],
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Generate notes from this chat",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
+    "default_title": "Generate notes from this chat"
   },
   "options_page": "options.html",
   "background": {

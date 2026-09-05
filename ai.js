@@ -89,9 +89,8 @@ async function callGemini(apiKey, model, transcript) {
 
 async function callAI(provider, apiKey, model, transcript, backendUrl) {
   if (backendUrl) return callBackend(backendUrl, provider, transcript);
-  if (provider === "openai") return callOpenAI(apiKey, model, transcript);
   if (provider === "gemini") return callGemini(apiKey, model, transcript);
-  return callAnthropic(apiKey, model, transcript);
+  return callGemini(apiKey, model, transcript);
 }
 
 function conversationToTranscript(payload) {

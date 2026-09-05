@@ -26,7 +26,7 @@ async function getSettings() {
   const { apiKey, model, provider, backendUrl } = await chrome.storage.local.get([
     "apiKey", "model", "provider", "backendUrl",
   ]);
-  return { apiKey, provider: provider || "anthropic", model, backendUrl };
+  return { apiKey, provider: provider || "gemini", model, backendUrl };
 }
 
 function loadImage(src) {
