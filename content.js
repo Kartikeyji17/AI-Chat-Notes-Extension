@@ -1,3 +1,22 @@
+function detectDiagrams() {
+  const diagrams = [];
+  document.querySelectorAll("img, canvas, svg").forEach((el) => {
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 60 || rect.height < 60) return; // skip small icons/avatars
+    if (rect.top < 0 || rect.left < 0 || rect.bottom > window.innerHeight || rect.right > window.innerWidth) return; // only currently on-screen elements can be screenshotted
+    const caption = (el.alt || el.getAttribute("aria-label") || "").trim();
+    diagrams.push({
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+      scale: window.devicePixelRatio || 1,
+      caption,
+    });
+  });
+  return diagrams;
+}
+
 function extractConversation() {
   const selectionText = window.getSelection().toString().trim();
   if (selectionText.length > 20) {
@@ -7,6 +26,7 @@ function extractConversation() {
       title: document.title,
       messages: [{ role: "selection", text: selectionText }],
       isSelection: true,
+      diagrams: detectDiagrams(),
     };
   }
 
@@ -40,7 +60,14 @@ function extractConversation() {
     if (text) messages.push({ role: "page", text: text.slice(0, 20000) });
   }
 
-  return { site: host, url: location.href, title: document.title, messages, isSelection: false };
+  return {
+    site: host,
+    url: location.href,
+    title: document.title,
+    messages,
+    isSelection: false,
+    diagrams: detectDiagrams(),
+  };
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {

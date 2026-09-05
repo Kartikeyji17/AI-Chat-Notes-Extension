@@ -187,3 +187,68 @@ body {
   margin-top: 100px;
   font-size: 13px;
 }
+
+.note-body pre {
+  background: #1e1e1e;
+  color: #eee;
+  padding: 12px 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 12px;
+  margin: 10px 0;
+}
+.note-body code { font-family: "SF Mono", Consolas, monospace; }
+
+.related-row {
+  font-size: 11.5px;
+  color: #a35a2a;
+  background: #fff4ec;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-top: 8px;
+}
+.related-link {
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.revisit-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  background: #f0d3bd;
+  color: #a35a2a;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.note-diagrams {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.note-diagrams figure {
+  margin: 0;
+  max-width: 320px;
+}
+.note-diagrams img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+.note-diagrams figcaption {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+}
+
+.revise-group {
+  display: inline-flex;
+  gap: 4px;
+}
+.revise-group button[data-q="2"]:hover { background: #fbe4e0; color: #b33; }
+.revise-group button[data-q="4"]:hover { background: #eef6e6; color: #3a7a2f; }
+.revise-group button[data-q="5"]:hover { background: #e6f0fb; color: #2f5f9e; }

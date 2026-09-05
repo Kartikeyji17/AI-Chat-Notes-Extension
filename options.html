@@ -26,6 +26,10 @@
   <label for="apiKey">API key</label>
   <input type="password" id="apiKey" placeholder="paste key here" />
 
+  <label for="backendUrl">Backend URL (optional)</label>
+  <input type="text" id="backendUrl" placeholder="https://your-backend.up.railway.app" />
+  <p class="hint">If set, notes are generated via your backend (no per-user API key needed) and results are cached server-side too.</p>
+
   <label for="model">Model</label>
   <input type="text" id="model" />
   <p class="hint" id="modelHint"></p>

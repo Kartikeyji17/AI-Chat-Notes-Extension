@@ -19,28 +19,16 @@ Structure the output as Markdown exactly like this, starting directly with the h
 **Counter-arguments / other viewpoints** — nuance, limitations, or alternative views a careful reader should weigh.
 **Open questions** — 1-3 things worth exploring further.`;
 
-async function callBackend(backendUrl, provider, transcript) {
-  const res = await fetch(`${backendUrl.replace(/\/$/, "")}/api/generate-notes`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ provider, transcript }),
-  });
-  if (!res.ok) throw new Error(`Backend ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  const data = await res.json();
-  return data.content || "";
-}
-
-async function callAnthropic(apiKey, model, transcript) {
+async function callAnthropic(transcript) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": apiKey,
+      "x-api-key": process.env.ANTHROPIC_API_KEY,
       "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
     },
     body: JSON.stringify({
-      model,
+      model: process.env.ANTHROPIC_MODEL,
       max_tokens: 2200,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: transcript }],
@@ -51,12 +39,15 @@ async function callAnthropic(apiKey, model, transcript) {
   return data.content.find((b) => b.type === "text")?.text || "";
 }
 
-async function callOpenAI(apiKey, model, transcript) {
+async function callOpenAI(transcript) {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
     body: JSON.stringify({
-      model,
+      model: process.env.OPENAI_MODEL,
       max_tokens: 2200,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -69,9 +60,10 @@ async function callOpenAI(apiKey, model, transcript) {
   return data.choices?.[0]?.message?.content || "";
 }
 
-async function callGemini(apiKey, model, transcript) {
+async function callGemini(transcript) {
+  const model = process.env.GEMINI_MODEL;
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,25 +79,10 @@ async function callGemini(apiKey, model, transcript) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
-async function callAI(provider, apiKey, model, transcript, backendUrl) {
-  if (backendUrl) return callBackend(backendUrl, provider, transcript);
-  if (provider === "openai") return callOpenAI(apiKey, model, transcript);
-  if (provider === "gemini") return callGemini(apiKey, model, transcript);
-  return callAnthropic(apiKey, model, transcript);
+async function callProvider(provider, transcript) {
+  if (provider === "openai") return callOpenAI(transcript);
+  if (provider === "gemini") return callGemini(transcript);
+  return callAnthropic(transcript);
 }
 
-function conversationToTranscript(payload) {
-  return payload.messages
-    .map((m) => `[${m.role.toUpperCase()}]\n${m.text}`)
-    .join("\n\n")
-    .slice(0, 40000);
-}
-
-function extractTags(markdown) {
-  const match = markdown.match(/^Tags:\s*(.+)$/im);
-  if (!match) return [];
-  return match[1].split(",").map((t) => t.trim().toLowerCase()).filter(Boolean).slice(0, 5);
-}
-function stripTagsLine(markdown) {
-  return markdown.replace(/^Tags:\s*.+$/im, "").trim();
-}
+module.exports = { callProvider };

@@ -2,23 +2,46 @@ function renderMarkdown(md) {
   const lines = md.split("\n");
   let html = "";
   let inList = false;
+  let inCode = false;
+  let codeBuffer = [];
+
+  function closeList() {
+    if (inList) { html += "</ul>"; inList = false; }
+  }
 
   for (let raw of lines) {
-    const line = raw.trim();
-    if (line.startsWith("## ")) {
-      if (inList) { html += "</ul>"; inList = false; }
-      html += `<h2>${inlineMd(line.slice(3))}</h2>`;
-    } else if (line.startsWith("- ") || line.startsWith("* ")) {
+    const trimmed = raw.trim();
+
+    if (trimmed.startsWith("```")) {
+      if (!inCode) {
+        inCode = true;
+        codeBuffer = [];
+      } else {
+        inCode = false;
+        html += `<pre><code>${escapeHtml(codeBuffer.join("\n"))}</code></pre>`;
+      }
+      continue;
+    }
+    if (inCode) {
+      codeBuffer.push(raw);
+      continue;
+    }
+
+    if (trimmed.startsWith("## ")) {
+      closeList();
+      html += `<h2>${inlineMd(trimmed.slice(3))}</h2>`;
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       if (!inList) { html += "<ul>"; inList = true; }
-      html += `<li>${inlineMd(line.slice(2))}</li>`;
-    } else if (line === "") {
-      if (inList) { html += "</ul>"; inList = false; }
+      html += `<li>${inlineMd(trimmed.slice(2))}</li>`;
+    } else if (trimmed === "") {
+      closeList();
     } else {
-      if (inList) { html += "</ul>"; inList = false; }
-      html += `<p>${inlineMd(line)}</p>`;
+      closeList();
+      html += `<p>${inlineMd(trimmed)}</p>`;
     }
   }
-  if (inList) html += "</ul>";
+  closeList();
+  if (inCode) html += `<pre><code>${escapeHtml(codeBuffer.join("\n"))}</code></pre>`;
   return html;
 }
 

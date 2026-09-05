@@ -1,9 +1,11 @@
-importScripts("ai.js");
+importScripts("db.js", "credit-optimizer.js", "ai.js");
 
 chrome.commands.onCommand.addListener(async (command) => {
   if (command !== "generate-notes") return;
 
   try {
+    await migrateFromChromeStorageIfNeeded();
+
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab) return;
 
@@ -19,34 +21,45 @@ chrome.commands.onCommand.addListener(async (command) => {
       return;
     }
 
-    badge("...", "#d97757");
-    const transcript = conversationToTranscript(payload);
-    const rawOutput = await callAI(provider || "anthropic", apiKey, model, transcript);
-    const tags = extractTags(rawOutput);
-    const notesMarkdown = stripTagsLine(rawOutput);
+    const rawTranscript = payload.messages.map((m) => `[${m.role.toUpperCase()}]\n${m.text}`).join("\n\n");
+    const transcript = trimTranscript(rawTranscript).slice(0, 40000);
 
+    const hash = await hashText(transcript);
+    const cachedId = await getCachedNoteId(hash);
+    if (cachedId) {
+      badge("DUP", "#888");
+      return;
+    }
+
+    badge("...", "#d97757");
+    const existingNotes = await getAllNotes();
     const firstUserMsg = payload.messages.find((m) => m.role === "user");
     const title = (firstUserMsg ? firstUserMsg.text : payload.title).slice(0, 80);
 
+    let content, tags, usedProvider = provider || "anthropic", usedModel = model;
+    if (isTrivial(transcript)) {
+      tags = extractLocalTags(transcript);
+      content = buildTrivialNote(payload, title);
+      usedProvider = null;
+      usedModel = null;
+    } else {
+      content = await callAI(usedProvider, apiKey, usedModel, transcript);
+      tags = extractLocalTags(transcript + " " + content);
+    }
+    const relatedNoteIds = findRelatedByLocalSimilarity(existingNotes, tags);
+
     const note = {
       id: crypto.randomUUID(),
-      title,
-      site: payload.site,
-      url: payload.url,
-      createdAt: Date.now(),
-      content: notesMarkdown,
-      tags,
-      transcript,
-      provider: provider || "anthropic",
-      model,
-      lastRevised: null,
-      nextDue: Date.now(),
-      intervalDays: 1,
+      title, site: payload.site, url: payload.url, createdAt: Date.now(),
+      content, tags, transcript,
+      provider: usedProvider, model: usedModel,
+      lastRevised: null, nextDue: Date.now(), intervalDays: 1,
+      easeFactor: 2.5, repetitions: 0,
+      diagrams: [], relatedNoteIds, isRevisit: relatedNoteIds.length > 0,
     };
 
-    const { notes = [] } = await chrome.storage.local.get("notes");
-    notes.unshift(note);
-    await chrome.storage.local.set({ notes });
+    await putNote(note);
+    await setCachedNoteId(hash, note.id);
 
     badge("OK", "#2e7d32");
   } catch (err) {
