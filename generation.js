@@ -75,9 +75,10 @@ async function generateNoteFromPayload(payload, settings, diagrams = []) {
     if (!content.trim()) throw new Error("The AI provider returned an empty note.");
   }
 
-  const tags = extractLocalTags(transcript + " " + content);
-  const relatedNoteIds = findRelatedByLocalSimilarity(existingNotes, tags);
   const structured = parseStructuredNote(content);
+  const tagSource = [transcript, title, structured.summary, ...structured.keyFacts].join(" ");
+  const tags = extractLocalTags(tagSource);
+  const relatedNoteIds = findRelatedByLocalSimilarity(existingNotes, tags);
   const flashcards = structured.keyFacts.slice(0, 20).map((fact) => ({
     question: `What is the important point about ${title}?`,
     answer: fact,

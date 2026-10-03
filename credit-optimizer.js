@@ -61,6 +61,8 @@ const STOPWORDS = new Set([
   "do","does","did","have","has","had","will","would","can","could","should","not","no",
   "so","if","then","than","also","just","like","what","how","why","when","where","which",
   "user","assistant","please","can","tell","explain","about","some","more","one","get",
+  "overview","explanation","key","facts","definitions","doubts","resolved","counter",
+  "arguments","viewpoints","open","questions","other",
 ]);
 
 function extractLocalTags(text, maxTags = 4) {
