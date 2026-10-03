@@ -7,8 +7,8 @@ AI Chat Notes fixes that — one click (or zero clicks) turns any chat into a de
 
 ![Manifest](https://img.shields.io/badge/Manifest-V3-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-active-brightgreen)
-![Provider](https://img.shields.io/badge/AI%20provider-Gemini%20%7C%20Google%20AI%20Studio-orange)
+![Status](https://img.shields.io/badge/status-beta-orange)
+![Provider](https://img.shields.io/badge/AI%20provider-Gemini%20%7C%20OpenAI%20%7C%20Anthropic-orange)
 
 ---
 
@@ -76,6 +76,12 @@ Not a gimmick "revise in 3 days" counter — the same ease-factor algorithm behi
 Rate each revision **Again / Good / Easy** and the schedule adapts to how well you
 actually know it.
 
+The Notes screen includes a focused **Review due** session so you can work through
+today's queue one note at a time instead of scanning the entire library.
+
+Each generated note can also produce local flashcards from its key facts, without
+another AI request.
+
 ### 💸 Built to minimize AI credit usage
 This is the part most "AI wrapper" extensions never think about:
 - **Content-hash caching** — regenerate the same chat twice, get the cached result, zero
@@ -94,7 +100,18 @@ This is the part most "AI wrapper" extensions never think about:
 
 ### 🗄️ Local-first storage, no lock-in
 Notes live in IndexedDB in your own browser. Full JSON export/import for backup — your
-data, your file, no account required.
+data, your file, no account required. Notes use a versioned structured schema while
+retaining the original Markdown, and large libraries load in pages.
+
+### 🔒 Privacy controls
+You can disable transcript retention, disable diagram screenshots, delete all local
+notes and duplicate indexes, and choose whether sensitive source conversations remain
+attached to saved notes.
+
+### 🔄 Optional sync
+Configure a private sync URL, account name, and backend token in Settings to merge
+notes across browsers. Sync is opt-in and uses last-updated-wins merging; local-only
+use remains the default.
 
 ### 🔌 Bring your own key, or your own backend
 Use a Gemini API key from Google AI Studio directly from the browser, or point the
@@ -111,7 +128,7 @@ server-side caching across devices and no per-browser key management.
 │            (active tab)       │
 └──────────────┬────────────────┘
                │
-               │ content.js — extracts conversation + on-screen diagrams
+               │ content.js — site adapters, confidence scoring, diagrams
                ▼
 ┌─────────────────────────────┐
 │        popup.js /            │
@@ -142,9 +159,10 @@ server-side caching across devices and no per-browser key management.
                      └──────────────────┘
 ```
 
-**Optional backend** (Node/Express + SQLite): a thin proxy that holds one shared API
-key, rate-limits requests, and caches identical transcripts **across all your devices**
-— not just in one browser.
+**Optional backend** (Node/Express + SQLite): a Gemini-only proxy that can hold one
+shared API key, rate-limit requests, and cache identical transcripts across devices.
+Set `BACKEND_TOKEN`, `ALLOWED_ORIGINS`, and `NODE_ENV=production` before exposing it
+to the internet. The included SQLite cache is intended for a single backend instance.
 
 ---
 
@@ -169,6 +187,28 @@ key, rate-limits requests, and caches identical transcripts **across all your de
 4. Click **Load unpacked**, select the project folder.
 5. Click the extension icon → **Settings** → enter your API key (or your backend URL).
 
+### Optional backend
+
+```powershell
+cd backend
+npm install
+Copy-Item .env.example .env
+npm start
+```
+
+Set a long random `BACKEND_TOKEN` and the exact extension origin in
+`ALLOWED_ORIGINS` before using a deployed backend. See [PRIVACY.md](PRIVACY.md)
+for data handling details.
+
+For private multi-device sync, use **Register sync account** in Settings. The
+bootstrap `BACKEND_TOKEN` creates a separate hashed account token; use that account
+token for later sync operations. Configure `DAILY_REQUEST_LIMIT` and
+`DAILY_CHARACTER_LIMIT` to control provider spend. `/api/metrics` is restricted to
+the bootstrap token.
+
+Administrators can export or restore private backend cache and sync snapshots through
+the protected `/api/admin/backup` and `/api/admin/restore` endpoints.
+
 ## 🖱️ Usage
 
 1. Have a conversation on ChatGPT, Claude, or Gemini.
@@ -190,6 +230,14 @@ summarize just that selection.
 - [x] Credit-minimization layer (hash caching, local tagging, trimming)
 - [x] IndexedDB migration
 - [x] Optional self-hosted backend with server-side caching
+- [x] Request bounds, backend authentication hook, cache expiry, and backup validation
+- [x] Site-aware extraction confidence and duplicate message filtering
+- [x] Structured note fields retained alongside Markdown
+- [x] Due-review session and paged note rendering
+- [x] Transcript retention, diagram capture, and delete-all privacy controls
+- [x] Extraction preview, confidence warning, true IndexedDB paging, and accessibility controls
+- [x] Structured note editor, review history and keyboard shortcuts, advanced filters, and opt-in sync
+- [x] Account tokens, daily backend quotas, sync history, metrics, flashcards, and concept-ranked search
 - [ ] Fully automatic per-message capture (no click needed) via a lightweight local
       classifier, once similarity-matching can replace the need for an AI-based
       topic-boundary decision

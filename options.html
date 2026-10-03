@@ -6,10 +6,14 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 480px; margin: 40px auto; color: #222; }
     h1 { font-size: 18px; }
     label { display: block; margin-top: 16px; font-size: 13px; font-weight: 600; }
-    input { width: 100%; padding: 8px; margin-top: 6px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+    input:not([type="checkbox"]) { width: 100%; padding: 8px; margin-top: 6px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+    .check-row { display: flex; align-items: center; gap: 8px; }
+    .check-row input { width: auto; margin: 0; }
     button { margin-top: 18px; padding: 9px 16px; border: none; border-radius: 8px; background: #d97757; color: white; font-weight: 600; cursor: pointer; }
     p.hint { font-size: 12px; color: #666; }
     #saved { font-size: 12px; color: green; margin-left: 10px; }
+    .danger { background: #a33; margin-left: 8px; }
+    .secondary-danger { background: #765; margin-left: 8px; }
   </style>
 </head>
 <body>
@@ -19,6 +23,8 @@
   <label for="provider">Provider</label>
   <select id="provider">
     <option value="gemini">Google (Gemini)</option>
+    <option value="openai">OpenAI</option>
+    <option value="anthropic">Anthropic</option>
   </select>
 
   <label for="apiKey">API key</label>
@@ -26,15 +32,35 @@
 
   <label for="backendUrl">Backend URL (optional)</label>
   <input type="text" id="backendUrl" placeholder="https://your-backend.up.railway.app" />
-  <p class="hint">If set, notes are generated via your backend (no per-user API key needed) and results are cached server-side too.</p>
+  <label for="backendToken">Backend access token (optional)</label>
+  <input type="password" id="backendToken" placeholder="token configured on your backend" />
+  <p class="hint">Use a token when your backend requires authentication. Never share a production backend URL without protecting it.</p>
 
   <label for="model">Model</label>
   <input type="text" id="model" />
   <p class="hint" id="modelHint"></p>
 
+  <label for="syncUrl">Sync URL (optional)</label>
+  <input type="url" id="syncUrl" placeholder="https://your-backend.example.com" />
+  <label for="syncAccount">Sync account name</label>
+  <input type="text" id="syncAccount" placeholder="private-device" />
+  <label for="syncToken">Sync token</label>
+  <input type="password" id="syncToken" placeholder="backend access token" />
+  <button id="registerSyncBtn" class="secondary">Register sync account</button>
+  <p class="hint">Sync is opt-in. Use a private account name and a protected backend token. The backend snapshot is not multi-user identity management.</p>
+
+  <label class="check-row"><input type="checkbox" id="storeTranscript" /> Store original transcripts with notes</label>
+  <label class="check-row"><input type="checkbox" id="captureDiagrams" /> Capture visible diagrams when generating</label>
+  <label for="retentionDays">Delete stored transcripts after days (optional)</label>
+  <input type="number" id="retentionDays" min="1" max="3650" placeholder="30" />
+  <p class="hint">Disable transcript storage if chats may contain sensitive information. Diagram capture can include anything visible in the browser viewport.</p>
+
   <button id="saveBtn">Save</button>
   <span id="saved"></span>
+  <button id="removeTranscriptsBtn" class="secondary-danger">Remove stored transcripts</button>
+  <button id="deleteAllBtn" class="danger">Delete all local notes</button>
 
+  <script src="db.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

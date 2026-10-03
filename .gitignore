@@ -1,0 +1,4 @@
+backend/node_modules/
+backend/cache.sqlite
+backend/.env
+*.log

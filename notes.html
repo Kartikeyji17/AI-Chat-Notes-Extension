@@ -12,12 +12,17 @@
     </div>
     <div class="controls">
       <input id="search" type="text" placeholder="🔍 Search notes..." />
+      <select id="siteFilter" aria-label="Filter by site"><option value="">All sites</option></select>
+      <select id="providerFilter" aria-label="Filter by provider"><option value="">All providers</option></select>
       <select id="sort">
         <option value="due">Due first</option>
         <option value="newest">Newest first</option>
         <option value="oldest">Oldest first</option>
         <option value="site">By site</option>
       </select>
+      <button id="reviewBtn" title="Review notes due today">Review due</button>
+      <button id="manageTagsBtn" title="Rename a tag">Manage tags</button>
+      <button id="syncBtn" title="Synchronize notes">Sync</button>
       <button id="exportAllBtn" title="Backup all notes as JSON">⬇ Backup</button>
       <label class="importLabel" title="Restore from JSON backup">
         ⬆ Import
@@ -25,13 +30,15 @@
       </label>
     </div>
   </div>
-  <div id="dueBanner"></div>
+  <button id="loadMoreBtn" hidden>Load more notes</button>
+  <div id="dueBanner" aria-live="polite"></div>
   <div id="tagBar"></div>
   <div id="list"></div>
   <script src="markdown.js"></script>
   <script src="db.js"></script>
   <script src="credit-optimizer.js"></script>
   <script src="ai.js"></script>
+  <script src="generation.js"></script>
   <script src="notes.js"></script>
 </body>
 </html>

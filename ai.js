@@ -19,10 +19,25 @@ Structure the output as Markdown exactly like this, starting directly with the h
 **Counter-arguments / other viewpoints** — nuance, limitations, or alternative views a careful reader should weigh.
 **Open questions** — 1-3 things worth exploring further.`;
 
-async function callBackend(backendUrl, provider, transcript) {
-  const res = await fetch(`${backendUrl.replace(/\/$/, "")}/api/generate-notes`, {
+async function request(url, options, timeoutMs = 45000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error.name === "AbortError") throw new Error("The AI request timed out. Try again.");
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function callBackend(backendUrl, provider, transcript, backendToken) {
+  const headers = { "Content-Type": "application/json" };
+  if (backendToken) headers.Authorization = `Bearer ${backendToken}`;
+  const res = await request(`${backendUrl.replace(/\/$/, "")}/api/generate-notes`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ provider, transcript }),
   });
   if (!res.ok) throw new Error(`Backend ${res.status}: ${(await res.text()).slice(0, 300)}`);
@@ -31,7 +46,7 @@ async function callBackend(backendUrl, provider, transcript) {
 }
 
 async function callAnthropic(apiKey, model, transcript) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await request("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -52,7 +67,7 @@ async function callAnthropic(apiKey, model, transcript) {
 }
 
 async function callOpenAI(apiKey, model, transcript) {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await request("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
@@ -70,7 +85,7 @@ async function callOpenAI(apiKey, model, transcript) {
 }
 
 async function callGemini(apiKey, model, transcript) {
-  const res = await fetch(
+  const res = await request(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
       method: "POST",
@@ -87,9 +102,16 @@ async function callGemini(apiKey, model, transcript) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
-async function callAI(provider, apiKey, model, transcript, backendUrl) {
-  if (backendUrl) return callBackend(backendUrl, provider, transcript);
+async function callAI(provider, apiKey, model, transcript, backendUrl, backendToken) {
+  if (backendUrl) return callBackend(backendUrl, provider, transcript, backendToken);
+  if (provider === "openai") return callOpenAI(apiKey, model, transcript);
+  if (provider === "anthropic") return callAnthropic(apiKey, model, transcript);
+  if (provider !== "gemini") throw new Error(`Unsupported provider: ${provider}`);
   return callGemini(apiKey, model, transcript);
+}
+
+function defaultModelForProvider(provider) {
+  return { gemini: "gemini-2.5-flash", openai: "gpt-4o-mini", anthropic: "claude-3-5-haiku-latest" }[provider] || "gemini-2.5-flash";
 }
 
 function conversationToTranscript(payload) {

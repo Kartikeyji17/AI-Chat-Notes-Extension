@@ -57,6 +57,18 @@ body {
   cursor: pointer;
   color: #555;
 }
+#reviewBtn, #loadMoreBtn {
+  font-size: 12px;
+  font-weight: 600;
+  background: #1e1e1e;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+#loadMoreBtn { display: block; margin: 0 auto 40px; }
+#loadMoreBtn[hidden] { display: none; }
 #exportAllBtn:hover, .importLabel:hover { background: #ebe9e4; }
 
 #dueBanner { max-width: 800px; margin: 18px auto 0; padding: 0 20px; }
@@ -69,6 +81,7 @@ body {
   padding: 11px 16px;
   border-radius: 12px;
 }
+#dueBanner .banner.quiet { background: #f1f5ee; border-color: #d5e5cc; color: #4d7542; }
 
 #tagBar {
   max-width: 800px;
@@ -118,6 +131,7 @@ body {
   gap: 12px;
   cursor: pointer;
 }
+.note-header:focus-visible { outline: 2px solid #d97757; outline-offset: 3px; }
 .note-title { font-size: 15.5px; font-weight: 700; margin: 0; }
 .note-meta { font-size: 11px; color: #aaa; white-space: nowrap; font-weight: 500; }
 
@@ -126,6 +140,10 @@ body {
 
 .note-body { font-size: 13.5px; line-height: 1.65; margin-top: 14px; display: none; }
 .note.expanded .note-body { display: block; }
+.flashcards { display: none; margin-top: 14px; gap: 8px; }
+.note.show-cards .flashcards { display: grid; }
+.flashcard { padding: 10px 12px; background: #f7f4ee; border-radius: 8px; border: 1px solid #e5e2da; }
+.flashcard p { margin: 6px 0 0; font-size: 12px; }
 .note-body h2 { font-size: 14px; margin: 16px 0 6px; color: #d97757; font-weight: 700; }
 .note-body h2:first-child { margin-top: 0; }
 .note-body p { margin: 6px 0; }
@@ -146,8 +164,21 @@ body {
   margin-top: 14px;
   display: none;
 }
+.note-editor { display: none; margin-top: 14px; }
+.note.editing .note-editor { display: grid; gap: 8px; }
+.note-editor label { display: grid; gap: 4px; font-size: 11px; font-weight: 700; color: #666; }
+.note-editor input, .note-editor textarea {
+  width: 100%;
+  font: inherit;
+  font-weight: 400;
+  padding: 8px 10px;
+  border: 1px solid #e5e2da;
+  border-radius: 8px;
+  resize: vertical;
+}
+.note-editor textarea { min-height: 56px; }
+.note-editor .note-editbox { display: block; min-height: 180px; }
 .note.editing .note-body { display: none; }
-.note.editing .note-editbox { display: block; }
 .note.editing .note-actions .edit-only { display: none; }
 .note-actions .save-only, .note-actions .cancel-only { display: none; }
 .note.editing .note-actions .save-only,
@@ -211,6 +242,11 @@ body {
   text-decoration: underline;
   cursor: pointer;
   font-weight: 600;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
 }
 
 .revisit-badge {

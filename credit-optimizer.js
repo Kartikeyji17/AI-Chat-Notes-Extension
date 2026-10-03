@@ -103,3 +103,25 @@ function buildTrivialNote(payload, title) {
     firstAssistant ? firstAssistant.text.slice(0, 500) : ""
   }`;
 }
+
+function searchTokens(text) {
+  return new Set(String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 2 && !STOPWORDS.has(word))
+    .map((word) => word.replace(/(?:ing|ed|es|s)$/, "")));
+}
+
+function semanticMatchScore(note, query) {
+  const queryText = String(query || "").trim().toLowerCase();
+  if (!queryText) return 0;
+  const noteText = [note.title, note.summary, note.content, ...(note.tags || [])].join(" ").toLowerCase();
+  const queryTokens = searchTokens(queryText);
+  const noteTokens = searchTokens(noteText);
+  let matches = 0;
+  for (const token of queryTokens) if (noteTokens.has(token) || noteText.includes(token)) matches++;
+  const overlap = queryTokens.size ? matches / queryTokens.size : 0;
+  const phraseBonus = noteText.includes(queryText) ? 0.5 : 0;
+  return overlap + phraseBonus;
+}

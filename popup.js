@@ -23,10 +23,10 @@ function setLoading(isLoading, label) {
 }
 
 async function getSettings() {
-  const { apiKey, model, provider, backendUrl } = await chrome.storage.local.get([
-    "apiKey", "model", "provider", "backendUrl",
+  const { apiKey, model, provider, backendUrl, backendToken, storeTranscript, captureDiagrams } = await chrome.storage.local.get([
+    "apiKey", "model", "provider", "backendUrl", "backendToken", "storeTranscript", "captureDiagrams",
   ]);
-  return { apiKey, provider: provider || "gemini", model, backendUrl };
+  return { apiKey, provider: provider || "gemini", model, backendUrl, backendToken, storeTranscript, captureDiagrams };
 }
 
 function loadImage(src) {
@@ -77,68 +77,28 @@ generateBtn.addEventListener("click", async () => {
       return;
     }
 
-    const rawTranscript = payload.messages.map((m) => `[${m.role.toUpperCase()}]\n${m.text}`).join("\n\n");
-    const transcript = compactTranscript(rawTranscript);
+    const preview = payload.messages.slice(0, 3)
+      .map((message) => `${String(message.role).toUpperCase()}: ${message.text}`)
+      .join("\n\n")
+      .slice(0, 1800);
+    const confidence = Math.round((payload.confidence || 0) * 100);
+    const warning = confidence < 60 ? "\n\nExtraction confidence is low; review the preview carefully." : "";
+    if (!window.confirm(`Send this extracted content for note generation?\n\nSource: ${payload.site}\nMessages: ${payload.messages.length}\nConfidence: ${confidence}%\n\n${preview}${warning}`)) {
+      setStatus("Generation cancelled.");
+      return;
+    }
 
-    const firstUserMsg = payload.messages.find((m) => m.role === "user");
-    const title = (firstUserMsg ? firstUserMsg.text : payload.title).slice(0, 80);
-
-    const hash = await hashText(transcript);
-    const cachedId = await getCachedNoteId(hash);
-    if (cachedId) {
+    const settings = await getSettings();
+    const diagrams = settings.captureDiagrams === false ? [] : await captureAndCropDiagrams(payload.diagrams);
+    const result = await generateNoteFromPayload(payload, settings, diagrams);
+    if (result.duplicate) {
       setStatus("Already have notes for this exact conversation. Open 'my notes' to view.");
       setLoading(false, "Generate notes from this chat");
       return;
     }
-
-    const diagrams = await captureAndCropDiagrams(payload.diagrams);
-    const existingNotes = await getAllNotes();
-
-    if (isTrivial(transcript)) {
-      const tags = extractLocalTags(transcript);
-      const content = buildTrivialNote(payload, title);
-      const relatedNoteIds = findRelatedByLocalSimilarity(existingNotes, tags);
-      const note = {
-        id: crypto.randomUUID(), title, site: payload.site, url: payload.url,
-        createdAt: Date.now(), content, tags, transcript,
-        provider: null, model: null,
-        lastRevised: null, nextDue: Date.now(), intervalDays: 1,
-        easeFactor: 2.5, repetitions: 0,
-        diagrams, relatedNoteIds, isRevisit: relatedNoteIds.length > 0,
-      };
-      await putNote(note);
-      await setCachedNoteId(hash, note.id);
-      setStatus("Short exchange — saved a quick note locally, no AI credits used.");
-      setLoading(false, "Generate notes from this chat");
-      return;
-    }
-
-    const { apiKey, provider, model, backendUrl } = await getSettings();
-    if (!apiKey && !backendUrl) {
-      setStatus("Set your API key or Backend URL in Settings first.");
-      setLoading(false, "Generate notes from this chat");
-      return;
-    }
-
     setLoading(true, payload.isSelection ? "Summarizing selection..." : "Generating notes...");
-    const notesMarkdown = await callAI(provider, apiKey, model, transcript, backendUrl);
-
-    const tags = extractLocalTags(transcript + " " + notesMarkdown);
-    const relatedNoteIds = findRelatedByLocalSimilarity(existingNotes, tags);
-
-    const note = {
-      id: crypto.randomUUID(),
-      title, site: payload.site, url: payload.url, createdAt: Date.now(),
-      content: notesMarkdown, tags, transcript, provider, model,
-      lastRevised: null, nextDue: Date.now(), intervalDays: 1,
-      easeFactor: 2.5, repetitions: 0,
-      diagrams, relatedNoteIds, isRevisit: relatedNoteIds.length > 0,
-    };
-
-    await putNote(note);
-    await setCachedNoteId(hash, note.id);
-
     let msg = (payload.isSelection ? "Selection saved. " : "Saved. ") + "Open 'my notes' to view.";
+    if (!result.note.provider) msg = "Short exchange saved locally, without an AI call. Open 'my notes' to view.";
     if (diagrams.length > 0) msg += ` (${diagrams.length} diagram screenshot${diagrams.length > 1 ? "s" : ""} captured)`;
     setStatus(msg);
   } catch (err) {
