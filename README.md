@@ -42,17 +42,21 @@ No new app to open. No manual copy-paste. No forgetting.
 ## ✨ Features
 
 ### 🎯 One-click (or zero-click) capture
+
 Click the extension icon, or use `Ctrl+Shift+U` without even opening a popup. Select
 partial text first to summarize just that portion.
 
-### 🧹 It understands *you*, not just your words
+### 🧹 It understands _you_, not just your words
+
 Type in broken Hinglish, shorthand, or typo-riddled prompts — the AI reads past your
 literal wording to the actual concept, and writes a clean, correct English heading and
 explanation. Your notes look like they were written by someone who deeply understood
 the topic, not transcribed by a stenographer.
 
 ### 📚 Deep notes, not shallow bullets
+
 Every note includes:
+
 - **Overview** — what it is, why it matters
 - **Explanation** — full paragraphs, not one-liners
 - **Key facts / definitions** — the memorizable core
@@ -64,14 +68,17 @@ Arrows (→), math symbols, emojis, and fenced code blocks are preserved exactly
 AI wrote them — nothing gets flattened into plain text.
 
 ### 🔁 Repeated-topic detection
+
 Asked about the same concept three weeks apart? AI Chat Notes notices, links the notes
 together, and flags it — so you can see your own learning curve on a topic over time.
 
 ### 🖼️ Diagram capture
+
 If a diagram or chart is on screen when you generate notes, it's screenshotted and
 embedded directly into the note alongside its explanation.
 
 ### 🧠 Real spaced repetition (SM-2)
+
 Not a gimmick "revise in 3 days" counter — the same ease-factor algorithm behind Anki.
 Rate each revision **Again / Good / Easy** and the schedule adapts to how well you
 actually know it.
@@ -83,7 +90,9 @@ Each generated note can also produce local flashcards from its key facts, withou
 another AI request.
 
 ### 💸 Built to minimize AI credit usage
+
 This is the part most "AI wrapper" extensions never think about:
+
 - **Content-hash caching** — regenerate the same chat twice, get the cached result, zero
   extra API cost.
 - **Trivial-exchange local shortcut** — short/simple exchanges get a template note with
@@ -99,21 +108,25 @@ This is the part most "AI wrapper" extensions never think about:
   vision model.
 
 ### 🗄️ Local-first storage, no lock-in
+
 Notes live in IndexedDB in your own browser. Full JSON export/import for backup — your
 data, your file, no account required. Notes use a versioned structured schema while
 retaining the original Markdown, and large libraries load in pages.
 
 ### 🔒 Privacy controls
+
 You can disable transcript retention, disable diagram screenshots, delete all local
 notes and duplicate indexes, and choose whether sensitive source conversations remain
 attached to saved notes.
 
 ### 🔄 Optional sync
+
 Configure a private sync URL, account name, and backend token in Settings to merge
 notes across browsers. Sync is opt-in and uses last-updated-wins merging; local-only
 use remains the default.
 
 ### 🔌 Bring your own key, or your own backend
+
 Use a Gemini API key from Google AI Studio directly from the browser, or point the
 extension at your own lightweight Gemini backend (included, Node/Express + SQLite) for
 server-side caching across devices and no per-browser key management.
@@ -168,14 +181,14 @@ to the internet. The included SQLite cache is intended for a single backend inst
 
 ## 🧰 Tech Stack
 
-| Layer | Choice | Why |
-|---|---|---|
-| Extension | Vanilla JS, Manifest V3 | Zero build step, fully auditable, no framework bloat |
-| Storage | IndexedDB | No practical size ceiling, unlike `chrome.storage.local` |
-| AI providers | Anthropic / OpenAI / Gemini | User's choice, BYOK by default |
-| Backend (optional) | Node.js, Express, better-sqlite3 | Deploys anywhere, zero external DB dependency |
-| Spaced repetition | SM-2 algorithm | The proven, Anki-grade scheduling model |
-| Similarity matching | Jaccard / TF-IDF (pure JS) | Zero-cost topic linking, no AI call needed |
+| Layer               | Choice                           | Why                                                      |
+| ------------------- | -------------------------------- | -------------------------------------------------------- |
+| Extension           | Vanilla JS, Manifest V3          | Zero build step, fully auditable, no framework bloat     |
+| Storage             | IndexedDB                        | No practical size ceiling, unlike `chrome.storage.local` |
+| AI providers        | Anthropic / OpenAI / Gemini      | User's choice, BYOK by default                           |
+| Backend (optional)  | Node.js, Express, better-sqlite3 | Deploys anywhere, zero external DB dependency            |
+| Spaced repetition   | SM-2 algorithm                   | The proven, Anki-grade scheduling model                  |
+| Similarity matching | Jaccard / TF-IDF (pure JS)       | Zero-cost topic linking, no AI call needed               |
 
 ---
 
