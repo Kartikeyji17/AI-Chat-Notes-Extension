@@ -1,3 +1,7 @@
+if (typeof document === "undefined") {
+  globalThis.document = { getElementById: () => ({ addEventListener() {} }), addEventListener() {} };
+}
+
 const listEl = document.getElementById("list");
 const searchEl = document.getElementById("search");
 const sortEl = document.getElementById("sort");
@@ -20,7 +24,7 @@ let reviewIndex = 0;
 let pagedMode = false;
 let hasMorePages = false;
 
-migrateFromChromeStorageIfNeeded().then(loadNotes);
+if (typeof chrome !== "undefined") migrateFromChromeStorageIfNeeded().then(loadNotes);
 
 function fmtDate(ts) {
   return new Date(ts).toLocaleString();
@@ -480,3 +484,5 @@ document.addEventListener("keydown", (e) => {
     button.click();
   }
 });
+
+if (typeof module !== "undefined") module.exports = { sm2Update };

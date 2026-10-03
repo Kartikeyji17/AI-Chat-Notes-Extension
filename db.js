@@ -32,7 +32,7 @@ function getDB() {
 }
 
 function normalizeNote(note) {
-  if (!note || typeof note !== "object" || typeof note.id !== "string" || !note.id) {
+  if (!note || typeof note !== "object" || typeof note.id !== "string" || !note.id.trim()) {
     throw new Error("Invalid note.");
   }
   const content = typeof note.content === "string" ? note.content : "";
@@ -239,3 +239,5 @@ async function pruneExpiredTranscripts(retentionDays) {
     transaction.onerror = () => reject(transaction.error);
   });
 }
+
+if (typeof module !== "undefined") module.exports = { normalizeNote, isSafeDiagram };

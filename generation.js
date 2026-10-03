@@ -7,15 +7,19 @@ function parseStructuredNote(markdown) {
   const lines = markdown.split("\n");
   let current = null;
   for (const line of lines) {
-    const heading = line.match(/^\*\*(Overview|Key facts \/ definitions|Doubts resolved|Counter-arguments \/ other viewpoints|Open questions)\*\*/i);
+    const heading = line.match(/^\*\*(Explanation|Overview|Key facts \/ definitions|Doubts resolved|Counter-arguments \/ other viewpoints|Open questions)\*\*/i);
     if (heading) {
       current = {
+        Explanation: null,
         Overview: "summary",
         "Key facts / definitions": "keyFacts",
         "Doubts resolved": "doubtsResolved",
         "Counter-arguments / other viewpoints": "counterArguments",
         "Open questions": "openQuestions",
       }[heading[1]];
+      if (current === "summary") {
+        sections.summary += `${line.slice(heading[0].length).replace(/^\s*[—-]?\s*/, "").trim()} `;
+      }
       continue;
     }
     if (!current || !line.trim()) continue;
@@ -118,3 +122,5 @@ async function generateNoteFromPayload(payload, settings, diagrams = []) {
   await setCachedNoteId(hash, note.id);
   return { duplicate: false, note };
 }
+
+if (typeof module !== "undefined") module.exports = { parseStructuredNote };

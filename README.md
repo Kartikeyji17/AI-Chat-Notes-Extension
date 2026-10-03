@@ -95,6 +95,8 @@ This is the part most "AI wrapper" extensions never think about:
 
 - **Content-hash caching** — regenerate the same chat twice, get the cached result, zero
   extra API cost.
+- **Explicit regeneration** — the Notes screen can bypass the backend cache when a fresh
+  provider result is needed, while still applying daily usage limits.
 - **Trivial-exchange local shortcut** — short/simple exchanges get a template note with
   no AI call at all.
 - **Local tagging & topic-matching** — TF-IDF-style keyword extraction and Jaccard
