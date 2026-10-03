@@ -1,4 +1,6 @@
-const { systemPrompt: SYSTEM_PROMPT, maxOutputTokens: MAX_OUTPUT_TOKENS } = AIChatNotesPrompt;
+const promptConfig = typeof AIChatNotesPrompt !== "undefined" ? AIChatNotesPrompt : require("./shared/prompt.js");
+const geminiConfig = typeof AIChatNotesGemini !== "undefined" ? AIChatNotesGemini : require("./shared/gemini.js");
+const { systemPrompt: SYSTEM_PROMPT, maxOutputTokens: MAX_OUTPUT_TOKENS } = promptConfig;
 
 async function request(url, options, timeoutMs = 45000) {
   const controller = new AbortController();
@@ -80,12 +82,7 @@ async function callGemini(apiKey, model, transcript) {
   );
   if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const data = await res.json();
-  const candidate = data.candidates?.[0];
-  const text = candidate?.content?.parts?.map((part) => part.text || "").join("").trim();
-  if (!text || candidate.finishReason === "MAX_TOKENS") {
-    throw new Error(candidate.finishReason === "MAX_TOKENS" ? "Gemini note generation reached the output token limit." : "Gemini returned no note content.");
-  }
-  return text;
+  return geminiConfig.parseGeminiResponse(data);
 }
 
 async function callAI(provider, apiKey, model, transcript, backendUrl, backendToken, options = {}) {
@@ -115,3 +112,5 @@ function extractTags(markdown) {
 function stripTagsLine(markdown) {
   return markdown.replace(/^Tags:\s*.+$/im, "").trim();
 }
+
+if (typeof module !== "undefined") module.exports = { callGemini };
