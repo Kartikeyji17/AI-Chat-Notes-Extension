@@ -94,6 +94,10 @@ function extractLocalTags(text, maxTags = 4) {
     .map(([w]) => w);
 }
 
+function buildTagSource(transcript, title, structured) {
+  return [transcript, title, structured.summary, ...structured.keyFacts].join(" ");
+}
+
 function jaccardSimilarity(setA, setB) {
   const a = new Set(setA);
   const b = new Set(setB);
@@ -144,6 +148,7 @@ if (typeof module !== "undefined") {
   module.exports = {
     trimTranscript,
     compactTranscript,
+    buildTagSource,
     extractLocalTags,
     jaccardSimilarity,
     findRelatedByLocalSimilarity,

@@ -80,8 +80,7 @@ async function generateNoteFromPayload(payload, settings, diagrams = []) {
   }
 
   const structured = parseStructuredNote(content);
-  const tagSource = [transcript, title, structured.summary, ...structured.keyFacts].join(" ");
-  const tags = extractLocalTags(tagSource);
+  const tags = extractLocalTags(buildTagSource(transcript, title, structured));
   const relatedNoteIds = findRelatedByLocalSimilarity(existingNotes, tags);
   const flashcards = structured.keyFacts.slice(0, 20).map((fact) => ({
     question: `What is the important point about ${title}?`,

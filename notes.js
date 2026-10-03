@@ -449,7 +449,7 @@ listEl.addEventListener("click", async (e) => {
     const model = note.model || settingsModel || defaultModelForProvider(provider);
     const content = await callAI(provider, apiKey, model, note.transcript, backendUrl, backendToken, { refresh: true });
     const structured = parseStructuredNote(content);
-      const tags = extractLocalTags(note.transcript + " " + content);
+      const tags = extractLocalTags(buildTagSource(note.transcript, note.title, structured));
         const flashcards = structured.keyFacts.slice(0, 20).map((fact) => ({
           question: `What is the important point about ${note.title}?`,
           answer: fact,

@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const {
   trimTranscript,
   compactTranscript,
+  buildTagSource,
   extractLocalTags,
   jaccardSimilarity,
   findRelatedByLocalSimilarity,
@@ -43,6 +44,16 @@ test("extractLocalTags excludes section-heading vocabulary", () => {
   for (const word of ["overview", "explanation", "key", "facts", "definitions", "doubts", "resolved", "counter", "arguments", "viewpoints", "open", "questions", "other"]) {
     assert.ok(!tags.includes(word), word);
   }
+});
+
+test("buildTagSource uses structured note fields instead of raw markdown headings", () => {
+  const structured = { summary: "A useful overview", keyFacts: ["Important physics fact"] };
+  const source = buildTagSource("quantum transcript", "Quantum physics", structured);
+  assert.equal(source, "quantum transcript Quantum physics A useful overview Important physics fact");
+  const tags = extractLocalTags(source);
+  for (const word of ["overview", "explanation", "key", "facts", "questions"]) assert.ok(!tags.includes(word), word);
+  assert.ok(tags.includes("quantum"));
+  assert.ok(tags.includes("physics"));
 });
 
 test("jaccard similarity and related-note threshold", () => {
