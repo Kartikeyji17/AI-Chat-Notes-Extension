@@ -3,6 +3,8 @@
   else root.AIChatNotesPrompt = factory();
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   return {
+    // Bump when systemPrompt or maxOutputTokens changes.
+    promptVersion: 1,
     systemPrompt: `You are an expert study-notes assistant creating revision notes from a raw AI chat transcript. The user often types in broken Hinglish or shorthand with typos; you must understand the underlying concept, not transcribe their exact wording.
 
 Follow these rules strictly:

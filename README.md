@@ -94,7 +94,8 @@ another AI request.
 This is the part most "AI wrapper" extensions never think about:
 
 - **Content-hash caching** — regenerate the same chat twice, get the cached result, zero
-  extra API cost.
+  extra API cost. Cache keys include the prompt version and output-token limit, so prompt
+  changes do not serve stale notes.
 - **Explicit regeneration** — the Notes screen can bypass the backend cache when a fresh
   provider result is needed, while still applying daily usage limits.
 - **Trivial-exchange local shortcut** — short/simple exchanges get a template note with

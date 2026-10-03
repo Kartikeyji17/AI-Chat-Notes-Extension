@@ -1,7 +1,7 @@
 const Database = require("better-sqlite3");
 const path = require("path");
 
-const db = new Database(path.join(__dirname, "cache.sqlite"));
+const db = new Database(process.env.DB_PATH || path.join(__dirname, "cache.sqlite"));
 const CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const SCHEMA_VERSION = 2;
 

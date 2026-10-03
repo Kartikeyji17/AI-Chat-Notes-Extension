@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const rateLimit = require("express-rate-limit");
+const { promptVersion, maxOutputTokens } = require("../shared/prompt.js");
 const { getCached, setCached, getSyncSnapshot, setSyncSnapshot, createAccount, getAccountByTokenHash, consumeUsage, getSyncHistory, exportState, importState } = require("./db");
 const { callProvider } = require("./providers");
 
@@ -83,8 +84,8 @@ function requireBootstrapToken(req, res, next) {
   next();
 }
 
-function hashTranscript(provider, transcript) {
-  return crypto.createHash("sha256").update(provider + "::" + transcript).digest("hex");
+function hashTranscript(provider, transcript, version = promptVersion) {
+  return crypto.createHash("sha256").update(`${provider}::v${version}::${maxOutputTokens}::${transcript}`).digest("hex");
 }
 
 app.post("/api/generate-notes", requireToken, async (req, res) => {
@@ -179,5 +180,9 @@ app.post("/api/admin/restore", requireBootstrapToken, (req, res) => {
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`AI Chat Notes backend running on :${port}`));
+if (require.main === module) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => console.log(`AI Chat Notes backend running on :${port}`));
+}
+
+module.exports = { app, hashTranscript };

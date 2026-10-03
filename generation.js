@@ -1,3 +1,5 @@
+const promptConfig = typeof AIChatNotesPrompt !== "undefined" ? AIChatNotesPrompt : require("./shared/prompt.js");
+
 function createNoteFromPayload(payload, settings, diagrams = []) {
   return generateNoteFromPayload(payload, settings, diagrams);
 }
@@ -41,7 +43,7 @@ async function generateNoteFromPayload(payload, settings, diagrams = []) {
   const transcript = compactTranscript(rawTranscript);
   if (!transcript) throw new Error("The conversation was empty.");
 
-  const hash = await hashText(transcript);
+  const hash = await hashText(`v${promptConfig.promptVersion}::${transcript}`);
   const cachedId = await getCachedNoteId(hash);
   if (cachedId) return { duplicate: true, noteId: cachedId };
 
