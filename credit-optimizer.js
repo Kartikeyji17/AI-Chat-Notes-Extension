@@ -39,19 +39,31 @@ function compactTranscript(transcript, maxChars = 24000) {
   const cleaned = trimTranscript(transcript);
   if (cleaned.length <= maxChars) return cleaned;
 
-  const messages = cleaned.split(/\n\n(?=\[(?:USER|ASSISTANT|PAGE)\])/);
-  const kept = [];
-  let length = 0;
+  const marker = "[... middle of conversation omitted to save tokens ...]";
+  const sliceMessage = (message, budget) => {
+    if (message.length <= budget) return message;
+    if (budget <= 1) return message.slice(0, budget);
+    const tailLength = Math.floor(budget / 2);
+    return message.slice(0, budget - tailLength) + message.slice(message.length - tailLength);
+  };
+  const messages = cleaned.split(/\n\n(?=\[[^\]]+\])/);
+  const first = messages[0];
+  if (first.length >= maxChars) return sliceMessage(first, maxChars);
+  if (maxChars <= marker.length + 4) return cleaned.slice(0, maxChars);
 
-  for (const message of messages) {
-    const separatorLength = kept.length > 0 ? 2 : 0;
-    if (length + separatorLength + message.length > maxChars) break;
-    kept.push(message);
-    length += separatorLength + message.length;
+  const tail = [];
+  let remaining = maxChars - first.length - marker.length - 4;
+  for (let index = messages.length - 1; index > 0 && remaining > 0; index--) {
+    const separatorLength = tail.length > 0 ? 2 : 0;
+    const budget = remaining - separatorLength;
+    if (budget <= 0) break;
+    const message = messages[index];
+    tail.unshift(sliceMessage(message, budget));
+    remaining -= separatorLength + Math.min(message.length, budget);
   }
 
-  if (kept.length === 0) return cleaned.slice(0, maxChars);
-  return kept.join("\n\n") + "\n\n[Transcript truncated to save tokens.]";
+  if (tail.length === 0) return first.slice(0, maxChars);
+  return `${first}\n\n${marker}\n\n${tail.join("\n\n")}`;
 }
 
 const STOPWORDS = new Set([
@@ -126,4 +138,14 @@ function semanticMatchScore(note, query) {
   const overlap = queryTokens.size ? matches / queryTokens.size : 0;
   const phraseBonus = noteText.includes(queryText) ? 0.5 : 0;
   return overlap + phraseBonus;
+}
+
+if (typeof module !== "undefined") {
+  module.exports = {
+    trimTranscript,
+    compactTranscript,
+    extractLocalTags,
+    jaccardSimilarity,
+    findRelatedByLocalSimilarity,
+  };
 }
