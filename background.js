@@ -1,4 +1,4 @@
-importScripts("db.js", "credit-optimizer.js", "ai.js", "generation.js");
+importScripts("shared/prompt.js", "db.js", "credit-optimizer.js", "ai.js", "generation.js");
 
 chrome.commands.onCommand.addListener(async (command) => {
   if (command !== "generate-notes") return;
