@@ -27,6 +27,6 @@ Structure the output as Markdown exactly like this, starting directly with the h
 **Open questions** — 2-4 specific things worth exploring further.
 
 Err on the side of writing more, not less. A shallow note is a failed note.`,
-    maxOutputTokens: 4096,
+    maxOutputTokens: 8192,
   };
 });

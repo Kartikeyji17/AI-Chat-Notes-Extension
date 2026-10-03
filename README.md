@@ -103,7 +103,9 @@ This is the part most "AI wrapper" extensions never think about:
   similarity run entirely in JavaScript. Tagging and repeat-detection cost **zero**
   tokens.
 - **Token-trimmed transcripts** — filler and duplicate lines stripped before anything is
-  sent to an API.
+  sent to an API. Gemini requests allow up to 8192 output tokens; supported thinking
+  models receive model-specific thinking settings, and truncated notes remain visible
+  with a Regenerate prompt.
 - **Gemini-first model defaults** — Google AI Studio is the current low-cost foundation,
   with bounded transcripts and local shortcuts to reduce token usage.
 - **No AI vision calls for diagrams** — captions come from on-page text, never a paid

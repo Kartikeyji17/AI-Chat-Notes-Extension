@@ -10,7 +10,7 @@
     }
     const text = candidate.content?.parts?.map((part) => part.text || "").join("").trim();
     if (!text) throw new Error("Gemini returned no note content.");
-    if (candidate.finishReason === "MAX_TOKENS") throw new Error("Gemini note generation reached the output token limit.");
+    if (candidate.finishReason === "MAX_TOKENS") return `${text}\n\n> ⚠ Note was truncated by the output token limit. Use Regenerate to retry.`;
     return text;
   }
 

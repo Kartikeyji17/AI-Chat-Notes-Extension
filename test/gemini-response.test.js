@@ -20,17 +20,17 @@ test("parseGeminiResponse reports empty text", () => {
 });
 
 test("parseGeminiResponse reports MAX_TOKENS", () => {
-  assert.throws(() => parseGeminiResponse({ candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: "partial" }] } }] }), /output token limit/);
+  assert.equal(parseGeminiResponse({ candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: "partial" }] } }] }), "partial\n\n> ⚠ Note was truncated by the output token limit. Use Regenerate to retry.");
 });
 
 test("buildGenerationConfig disables thinking for flash models", () => {
-  assert.deepEqual(buildGenerationConfig("gemini-2.5-flash"), { maxOutputTokens: 4096, thinkingConfig: { thinkingBudget: 0 } });
+  assert.deepEqual(buildGenerationConfig("gemini-2.5-flash"), { maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 0 } });
 });
 
 test("buildGenerationConfig uses a bounded thinking budget for pro models", () => {
-  assert.deepEqual(buildGenerationConfig("gemini-2.5-pro-preview"), { maxOutputTokens: 4096, thinkingConfig: { thinkingBudget: 128 } });
+  assert.deepEqual(buildGenerationConfig("gemini-2.5-pro-preview"), { maxOutputTokens: 8192, thinkingConfig: { thinkingBudget: 128 } });
 });
 
 test("buildGenerationConfig omits thinking config for other models", () => {
-  assert.deepEqual(buildGenerationConfig("gemini-1.5-pro"), { maxOutputTokens: 4096 });
+  assert.deepEqual(buildGenerationConfig("gemini-1.5-pro"), { maxOutputTokens: 8192 });
 });
