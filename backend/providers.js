@@ -1,5 +1,5 @@
 const { systemPrompt: SYSTEM_PROMPT, maxOutputTokens: MAX_OUTPUT_TOKENS } = require("../shared/prompt.js");
-const { parseGeminiResponse } = require("../shared/gemini.js");
+const { parseGeminiResponse, buildGenerationConfig } = require("../shared/gemini.js");
 
 async function callGemini(transcript) {
   const model = process.env.GEMINI_MODEL;
@@ -11,7 +11,7 @@ async function callGemini(transcript) {
       body: JSON.stringify({
         contents: [{ parts: [{ text: transcript }] }],
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS, thinkingConfig: { thinkingBudget: 0 } },
+        generationConfig: buildGenerationConfig(model),
       }),
     }
   );

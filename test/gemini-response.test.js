@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { parseGeminiResponse } = require("../shared/gemini.js");
+const { parseGeminiResponse, buildGenerationConfig } = require("../shared/gemini.js");
 
 test("parseGeminiResponse returns normal Gemini text", () => {
   assert.equal(parseGeminiResponse({ candidates: [{ content: { parts: [{ text: "note" }] } }] }), "note");
@@ -21,4 +21,16 @@ test("parseGeminiResponse reports empty text", () => {
 
 test("parseGeminiResponse reports MAX_TOKENS", () => {
   assert.throws(() => parseGeminiResponse({ candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: "partial" }] } }] }), /output token limit/);
+});
+
+test("buildGenerationConfig disables thinking for flash models", () => {
+  assert.deepEqual(buildGenerationConfig("gemini-2.5-flash"), { maxOutputTokens: 4096, thinkingConfig: { thinkingBudget: 0 } });
+});
+
+test("buildGenerationConfig uses a bounded thinking budget for pro models", () => {
+  assert.deepEqual(buildGenerationConfig("gemini-2.5-pro-preview"), { maxOutputTokens: 4096, thinkingConfig: { thinkingBudget: 128 } });
+});
+
+test("buildGenerationConfig omits thinking config for other models", () => {
+  assert.deepEqual(buildGenerationConfig("gemini-1.5-pro"), { maxOutputTokens: 4096 });
 });

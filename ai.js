@@ -76,7 +76,7 @@ async function callGemini(apiKey, model, transcript) {
       body: JSON.stringify({
         contents: [{ parts: [{ text: transcript }] }],
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS, thinkingConfig: { thinkingBudget: 0 } },
+        generationConfig: geminiConfig.buildGenerationConfig(model),
       }),
     }
   );

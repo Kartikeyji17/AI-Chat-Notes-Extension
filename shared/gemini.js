@@ -14,5 +14,12 @@
     return text;
   }
 
-  return { parseGeminiResponse };
+  function buildGenerationConfig(model) {
+    const generationConfig = { maxOutputTokens: prompt.maxOutputTokens };
+    if (/^gemini-2\.5-flash/.test(model)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
+    else if (/^gemini-2\.5-pro/.test(model)) generationConfig.thinkingConfig = { thinkingBudget: 128 };
+    return generationConfig;
+  }
+
+  return { parseGeminiResponse, buildGenerationConfig };
 });
