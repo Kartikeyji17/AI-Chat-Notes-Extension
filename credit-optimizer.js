@@ -34,6 +34,26 @@ function trimTranscript(transcript) {
   return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
+// Keep the request within a predictable token budget while preserving messages.
+function compactTranscript(transcript, maxChars = 24000) {
+  const cleaned = trimTranscript(transcript);
+  if (cleaned.length <= maxChars) return cleaned;
+
+  const messages = cleaned.split(/\n\n(?=\[(?:USER|ASSISTANT|PAGE)\])/);
+  const kept = [];
+  let length = 0;
+
+  for (const message of messages) {
+    const separatorLength = kept.length > 0 ? 2 : 0;
+    if (length + separatorLength + message.length > maxChars) break;
+    kept.push(message);
+    length += separatorLength + message.length;
+  }
+
+  if (kept.length === 0) return cleaned.slice(0, maxChars);
+  return kept.join("\n\n") + "\n\n[Transcript truncated to save tokens.]";
+}
+
 const STOPWORDS = new Set([
   "the","a","an","is","are","was","were","be","been","being","to","of","in","on","for",
   "and","or","but","with","as","at","by","from","this","that","these","those","it","its",

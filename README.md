@@ -8,7 +8,7 @@ AI Chat Notes fixes that — one click (or zero clicks) turns any chat into a de
 ![Manifest](https://img.shields.io/badge/Manifest-V3-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
-![Providers](https://img.shields.io/badge/providers-Anthropic%20%7C%20OpenAI%20%7C%20Gemini-orange)
+![Provider](https://img.shields.io/badge/AI%20provider-Gemini%20%7C%20Google%20AI%20Studio-orange)
 
 ---
 
@@ -87,8 +87,8 @@ This is the part most "AI wrapper" extensions never think about:
   tokens.
 - **Token-trimmed transcripts** — filler and duplicate lines stripped before anything is
   sent to an API.
-- **Cheapest-tier model defaults** — Haiku / GPT-4o-mini / Gemini Flash by default, with
-  a visible cost-awareness nudge if you switch to something pricier.
+- **Gemini-first model defaults** — Google AI Studio is the current low-cost foundation,
+  with bounded transcripts and local shortcuts to reduce token usage.
 - **No AI vision calls for diagrams** — captions come from on-page text, never a paid
   vision model.
 
@@ -97,8 +97,8 @@ Notes live in IndexedDB in your own browser. Full JSON export/import for backup 
 data, your file, no account required.
 
 ### 🔌 Bring your own key, or your own backend
-Use your own Anthropic / OpenAI / Gemini API key directly from the browser — or point
-the extension at your own lightweight backend (included, Node/Express + SQLite) for
+Use a Gemini API key from Google AI Studio directly from the browser, or point the
+extension at your own lightweight Gemini backend (included, Node/Express + SQLite) for
 server-side caching across devices and no per-browser key management.
 
 ---
@@ -182,7 +182,7 @@ summarize just that selection.
 
 ## 🗺️ Roadmap
 
-- [x] Multi-provider support (Anthropic, OpenAI, Gemini)
+- [x] Gemini generation via Google AI Studio
 - [x] Deep, structured note generation with counter-arguments
 - [x] Local repeated-topic detection
 - [x] Diagram screenshot capture

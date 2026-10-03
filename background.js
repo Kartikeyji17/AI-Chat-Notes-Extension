@@ -15,14 +15,16 @@ chrome.commands.onCommand.addListener(async (command) => {
       return;
     }
 
-    const { apiKey, provider, model } = await chrome.storage.local.get(["apiKey", "provider", "model"]);
-    if (!apiKey) {
+    const { apiKey, provider, model, backendUrl } = await chrome.storage.local.get([
+      "apiKey", "provider", "model", "backendUrl",
+    ]);
+    if (!apiKey && !backendUrl) {
       badge("KEY", "#b33");
       return;
     }
 
     const rawTranscript = payload.messages.map((m) => `[${m.role.toUpperCase()}]\n${m.text}`).join("\n\n");
-    const transcript = trimTranscript(rawTranscript).slice(0, 40000);
+    const transcript = compactTranscript(rawTranscript);
 
     const hash = await hashText(transcript);
     const cachedId = await getCachedNoteId(hash);
@@ -36,14 +38,14 @@ chrome.commands.onCommand.addListener(async (command) => {
     const firstUserMsg = payload.messages.find((m) => m.role === "user");
     const title = (firstUserMsg ? firstUserMsg.text : payload.title).slice(0, 80);
 
-    let content, tags, usedProvider = provider || "anthropic", usedModel = model;
+    let content, tags, usedProvider = provider || "gemini", usedModel = model;
     if (isTrivial(transcript)) {
       tags = extractLocalTags(transcript);
       content = buildTrivialNote(payload, title);
       usedProvider = null;
       usedModel = null;
     } else {
-      content = await callAI(usedProvider, apiKey, usedModel, transcript);
+      content = await callAI(usedProvider, apiKey, usedModel, transcript, backendUrl);
       tags = extractLocalTags(transcript + " " + content);
     }
     const relatedNoteIds = findRelatedByLocalSimilarity(existingNotes, tags);

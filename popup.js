@@ -78,7 +78,7 @@ generateBtn.addEventListener("click", async () => {
     }
 
     const rawTranscript = payload.messages.map((m) => `[${m.role.toUpperCase()}]\n${m.text}`).join("\n\n");
-    const transcript = trimTranscript(rawTranscript).slice(0, 40000);
+    const transcript = compactTranscript(rawTranscript);
 
     const firstUserMsg = payload.messages.find((m) => m.role === "user");
     const title = (firstUserMsg ? firstUserMsg.text : payload.title).slice(0, 80);
