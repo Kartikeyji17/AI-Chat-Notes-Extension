@@ -88,8 +88,8 @@ async function callGemini(apiKey, model, transcript) {
   return text;
 }
 
-async function callAI(provider, apiKey, model, transcript, backendUrl, backendToken) {
-  if (backendUrl) return callBackend(backendUrl, provider, transcript, backendToken);
+async function callAI(provider, apiKey, model, transcript, backendUrl, backendToken, options = {}) {
+  if (backendUrl) return callBackend(backendUrl, provider, transcript, backendToken, options);
   if (provider === "openai") return callOpenAI(apiKey, model, transcript);
   if (provider === "anthropic") return callAnthropic(apiKey, model, transcript);
   if (provider !== "gemini") throw new Error(`Unsupported provider: ${provider}`);

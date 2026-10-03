@@ -89,7 +89,7 @@ function hashTranscript(provider, transcript) {
 
 app.post("/api/generate-notes", requireToken, async (req, res) => {
   try {
-    const { provider = "gemini", transcript } = req.body || {};
+    const { provider = "gemini", transcript, refresh = false } = req.body || {};
     if (provider !== "gemini") return res.status(400).json({ error: "Unsupported provider" });
     if (!transcript || typeof transcript !== "string" || transcript.length > 40000) {
       return res.status(400).json({ error: "transcript must be a non-empty string under 40000 characters" });
@@ -99,7 +99,7 @@ app.post("/api/generate-notes", requireToken, async (req, res) => {
     }
 
     const hash = hashTranscript(provider, transcript);
-    const cached = getCached(hash);
+    const cached = refresh === true ? null : getCached(hash);
     if (cached) {
       metrics.cacheHits++;
       return res.json({ content: cached, cached: true });

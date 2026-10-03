@@ -443,7 +443,7 @@ listEl.addEventListener("click", async (e) => {
     const { apiKey, backendUrl, backendToken, model: settingsModel, provider: settingsProvider } = await chrome.storage.local.get(["apiKey", "backendUrl", "backendToken", "model", "provider"]);
     const provider = note.provider || settingsProvider || "gemini";
     const model = note.model || settingsModel || defaultModelForProvider(provider);
-    const content = await callAI(provider, apiKey, model, note.transcript, backendUrl, backendToken);
+    const content = await callAI(provider, apiKey, model, note.transcript, backendUrl, backendToken, { refresh: true });
     const structured = parseStructuredNote(content);
       const tags = extractLocalTags(note.transcript + " " + content);
         const flashcards = structured.keyFacts.slice(0, 20).map((fact) => ({
